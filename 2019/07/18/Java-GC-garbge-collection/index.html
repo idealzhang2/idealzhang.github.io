@@ -6,19 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2019/5 | Find the truth</title>
+  <title>Java GC(garbge collection)  | Find the truth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="A blog of a little bird">
-<meta name="keywords" content="blog,IT,Deep Learning,software,basic">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Find the truth">
-<meta property="og:url" content="http://yoursite.com/archives/2019/05/index.html">
+  <meta name="description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
+<meta name="keywords" content="Java,GC,garbge,JVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java GC(garbge collection) ">
+<meta property="og:url" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/index.html">
 <meta property="og:site_name" content="Find the truth">
-<meta property="og:description" content="A blog of a little bird">
+<meta property="og:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-18T07:34:02.178Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Find the truth">
-<meta name="twitter:description" content="A blog of a little bird">
+<meta name="twitter:title" content="Java GC(garbge collection) ">
+<meta name="twitter:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
   
     <link rel="alternative" href="/atom.xml" title="Find the truth" type="application/atom+xml">
   
@@ -158,87 +159,232 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Java-GC-garbge-collection" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/05/21/First/" class="archive-article-date">
-  	<time datetime="2019-05-21T08:42:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-05-21</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/05/21/First/">First</a>
+    <h1 class="article-title" itemprop="name">
+      Java GC(garbge collection) 
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/07/18/Java-GC-garbge-collection/" class="archive-article-date">
+  	<time datetime="2019-07-18T05:56:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="JVM垃圾回收机制"><a href="#JVM垃圾回收机制" class="headerlink" title="JVM垃圾回收机制"></a>JVM垃圾回收机制</h1><h3 id="一判断对象是否已死"><a href="#一判断对象是否已死" class="headerlink" title="一判断对象是否已死"></a>一判断对象是否已死</h3><h3 id="二对已死对象如何回收（回收算法）"><a href="#二对已死对象如何回收（回收算法）" class="headerlink" title="二对已死对象如何回收（回收算法）"></a>二对已死对象如何回收（回收算法）</h3><h3 id="三垃圾收集器"><a href="#三垃圾收集器" class="headerlink" title="三垃圾收集器"></a>三垃圾收集器</h3><h3 id="四内存回收策略"><a href="#四内存回收策略" class="headerlink" title="四内存回收策略"></a>四内存回收策略</h3><a id="more"></a>
+
+<h3 id="一判断对象是否已死-1"><a href="#一判断对象是否已死-1" class="headerlink" title="一判断对象是否已死"></a>一判断对象是否已死</h3><ol>
+<li><p><font color="#0000FF">引用计数算法</font></p>
+<p><strong><font color="#FF0000">content:</font></strong>给对象添加引用计数器，每当有一个地方引用它时，计数器值就加1,；当引用计数器失效时，计数器的值就减1,；任何时刻计数器值为0的对象就是不可能被使用的。</p>
+<p><strong>area:</strong>微软的COM（Component Object Model）技术，FlashPlayer（ActionScript3），python（ActionScript3） ，游戏脚本（Squirrel）。</p>
+<p><strong>shortcoming:</strong>主流java虚拟机（JVM）中不采用。</p>
+<p><strong>Advantage:</strong>判定效率较高。</p>
+<p><strong><font color="#FF0000">cann’t_solve_problem:</font></strong>循环引用（难以解决对象之间的循环引用问题）。</p>
+<p><strong>example:</strong></p>
+<figure class="highlight plain"><figcaption><span>class ReferencecountingGc&#123;```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>public Object instance = null;<br>public static final int _1MB = 1024<em>1024;<br>private byte[] bigSize = new byte[2</em>_1MB];<br>public static void testGC(){<br>ReferencecountingGc objA = new ReferenceCountingGc();<br>ReferencecountingGc objB = new ReferenceCountingGc();<br>objA.instance = objB;<br>objB.instance = objA;<br>objA = null;<br>objB = null;<br>System.gc();<br>}</p>
+<pre><code></code></pre></li>
+<li><p><font color="#0000FF">可达性分析算法</font></p>
+<p><strong><font color="#FF0000">content:</font></strong>通过一系列被称为“GC Roots”的对象为起点，从这些节点开始乡下搜索，搜索走过的路径称为引用链（reference chain）,当一个对象到GC Roots 没有任何引用链相连的时候（即图论来说，就是从GC Roots到这个对象不可达），则证明这个对象不可用的。</p>
+<p><strong>GC Roots Types:</strong></p>
+<ul>
+<li>虚拟机栈（栈帧中的本地变量表）中应用的对象 </li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+<li>本地方法栈中JNI（一般来说Native 方法）引用的对象</li>
+</ul>
+</li>
+<li><p><strong><font color="#0000FF">引用:</font></strong></p>
+<p><strong>JDK1.2之前：</strong>如果reference类型的数据中存储的数值代表的是另外一块内存的起始地址，就称这块内存代表着一个引用</p>
+<p><strong>JDK1.2之后：</strong></p>
+<p><strong>引用类型：</strong>强引用（Strong Reference），软引用（Soft Reference），弱引用（Weak Reference），虚引用（Phantom Reference）</p>
+<ul>
+<li>强引用：类似<code>Object  obj = new Object()</code>，只要强引用还在，垃圾收集器永远不会回收掉被引用的对象。</li>
+<li>软引用:用来描述一些还有用但是并非必须的对象，软引用关联着的对象，在<strong>系统内存溢出异常</strong>之前，将把这些对象列进回收范围之中进行第二次回收。如果这次回收还没有足够内存，才会抛出内存溢出异常。在JDK1.2以后，SoftReference类来实现软引用。</li>
+<li>弱引用：用来描述非必要对象，强度比软引用更弱一些， 被弱引用关联的对象只能生存到下一次垃圾收集发生之前。<strong>垃圾回收器工作时</strong>，无论当前内存是否够用，都会回收<strong>只</strong>被弱引用的对象，JDK1.2后，WeakReference类来实现弱引用。</li>
+<li>虚引用：也称为幽灵引用或者幻影引用。最弱的一种引用，虚引用不影响关联对象的生存时间，无法通过虚引用获取一个对象的实例。<strong>目的</strong>在这个对象<strong>被收集器回收时</strong>收到一个<strong>系统通知</strong>。JDK1.2后PhantomReference类来实现虚引用。</li>
+</ul>
+</li>
+<li><p><strong><font color="#0000FF">不可达之后生存还是死亡</font></strong></p>
+<p><strong>前提条件:</strong>使用可达性分析算法。</p>
+<p><strong>process：</strong>发现对象与GC Roots没有连接的引用链后，该对象被第一次标记并筛选，筛选的条件是该对象有没有必要执行finalize()方法。如果<strong>对象没有覆盖finalize()方法</strong>，或者<strong>finalize() 方法已经被虚拟机调用过</strong>，虚拟机将这两种情况视为“没必要执行”。</p>
+<hr>
+<p><strong>*<font color="#FF0000">Note:</font>首先标记是否是不可达，不可达情况下，如果对象的finalize()被覆盖，或者finalize()方法已经被虚拟机调用过，这两种都是不必要杀死*</strong></p>
+<hr>
+</li>
+</ol>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">张三</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">GC</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">garbge</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/JVM//" class="article-tag-list-link color4">JVM</a>
+        		</li>
+      		
+		</ul>
+	</div>
 
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/07/18/Java-GC-garbge-collection/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/05/21/hello-world/" class="archive-article-date">
-  	<time datetime="2019-05-21T08:37:47.246Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-05-21</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/07/16/KMP的next数组生成/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">KMP的next数组生成</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/05/21/hello-world/">Hello World</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -261,8 +407,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
