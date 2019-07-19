@@ -16,10 +16,14 @@
 <meta property="og:site_name" content="Find the truth">
 <meta property="og:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-18T07:34:02.178Z">
+<meta property="og:image" content="d:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
+<meta property="og:image" content="d:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png">
+<meta property="og:image" content="d:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg">
+<meta property="og:updated_time" content="2019-07-19T09:34:46.510Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java GC(garbge collection) ">
 <meta name="twitter:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
+<meta name="twitter:image" content="d:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
   
     <link rel="alternative" href="/atom.xml" title="Find the truth" type="application/atom+xml">
   
@@ -200,10 +204,11 @@
 <li>虚拟机栈（栈帧中的本地变量表）中应用的对象 </li>
 <li>方法区中类静态属性引用的对象</li>
 <li>方法区中常量引用的对象</li>
-<li>本地方法栈中JNI（一般来说Native 方法）引用的对象</li>
-</ul>
+<li>本地方法栈中JNI（一般来说Native 方法）引用的对象<ol start="3">
+<li><strong><font color="#0000FF">引用:</font></strong></li>
+</ol>
 </li>
-<li><p><strong><font color="#0000FF">引用:</font></strong></p>
+</ul>
 <p><strong>JDK1.2之前：</strong>如果reference类型的数据中存储的数值代表的是另外一块内存的起始地址，就称这块内存代表着一个引用</p>
 <p><strong>JDK1.2之后：</strong></p>
 <p><strong>引用类型：</strong>强引用（Strong Reference），软引用（Soft Reference），弱引用（Weak Reference），虚引用（Phantom Reference）</p>
@@ -214,15 +219,94 @@
 <li>虚引用：也称为幽灵引用或者幻影引用。最弱的一种引用，虚引用不影响关联对象的生存时间，无法通过虚引用获取一个对象的实例。<strong>目的</strong>在这个对象<strong>被收集器回收时</strong>收到一个<strong>系统通知</strong>。JDK1.2后PhantomReference类来实现虚引用。</li>
 </ul>
 </li>
-<li><p><strong><font color="#0000FF">不可达之后生存还是死亡</font></strong></p>
-<p><strong>前提条件:</strong>使用可达性分析算法。</p>
-<p><strong>process：</strong>发现对象与GC Roots没有连接的引用链后，该对象被第一次标记并筛选，筛选的条件是该对象有没有必要执行finalize()方法。如果<strong>对象没有覆盖finalize()方法</strong>，或者<strong>finalize() 方法已经被虚拟机调用过</strong>，虚拟机将这两种情况视为“没必要执行”。</p>
+</ol>
+<ol start="4">
+<li><strong><font color="#0000FF">不可达之后生存还是死亡</font></strong></li>
+</ol>
+<p>   <strong>前提条件:</strong>使用可达性分析算法。</p>
+<p>   <strong>process：</strong>发现对象与GC Roots没有连接的引用链后，该对象被第一次标记并筛选，筛选的条件是该对象有没有必要执行finalize()方法。如果<strong>对象没有覆盖finalize()方法</strong>，或者<strong>finalize() 方法已经被虚拟机调用过</strong>，虚拟机将这两种情况视为“没必要执行”。</p>
 <hr>
-<p><strong>*<font color="#FF0000">Note:</font>首先标记是否是不可达，不可达情况下，如果对象的finalize()被覆盖，或者finalize()方法已经被虚拟机调用过，这两种都是不必要杀死*</strong></p>
+<p>   <strong>*<font color="#FF0000">Note:</font>首先标记是否是不可达，不可达情况下，如果对象的finalize()被覆盖，或者finalize()方法已经被虚拟机调用过，这两种都是不必要杀死*</strong></p>
 <hr>
+<p>   如果被标记为需要执行，则将该对象放入到F-Queue队列中，之后虚拟机自动建立的，低优先级的finalizer 线程去执行。<strong>执行：</strong>虚拟机来触发这个方法，但是不承诺会等待它执行结束（如果一个对象finalize（）方法执行缓慢，或者发生死循环，可能导致F-Queue无线等待，整个回收系统崩溃）。finalize方法是对象避免被杀死的最后一次机会，之后GC将F-Queue中的对象进行二次小规模的标记，在此期间，如果该对象与引用链上的对象重新建立联系（将自己赋值给引用链上对象的成员变量）。如果在第二次标记之前成功建立链接，则将该对象移出<strong>即将回收</strong>队列。</p>
+<p><strong><font color="#FF0000">Note:</font></strong>这种自救机会只有一次，一个对象的finalize()方法最多只会被系统自动调用一次。如果第一次自救结束，第二次回收时就不会调用finalize（）方法。</p>
+<ol start="5">
+<li><strong><font color="#0000FF">回收方法区</font></strong></li>
+</ol>
+<p>​    <strong>永久代的垃圾收集：</strong>废弃常量和无用的类。</p>
+<ul>
+<li>没有任何同类型对象引用常量池中的字符串“abc”，其他类，方法，段或对象,也没有其他地方引用这个字面量，垃圾回收时，而且有必要的话，就会将该常量清理出常量池。</li>
+</ul>
+<p><strong>无用类判定条件：</strong></p>
+<ul>
+<li>该类所有实例都已经被回收，即java堆里面不存在该类的任何实例。</li>
+<li>加载该类的ClassLoader已经被回收。</li>
+<li>该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。</li>
+</ul>
+<p><strong><font color="#FF0000">Note:</font></strong>上述三个条件是被回收的必要不充分条件，满足判定条件不代表一定会被回收，只是表示优先被回收；主要由-Xnoclassgc参数控制。</p>
+<ol start="6">
+<li><p><strong><font color="#0000FF">垃圾回收算法</font></strong></p>
+<ul>
+<li><p>标记-清除算法</p>
+<p> <strong>definition：</strong>标记-清除（Mark-Sweep）分为<strong>标记</strong>和<strong>清除</strong> 两个阶段。<strong>标记：</strong>       1,2,3,4,5的判定方法。<strong>回收：</strong>回收系统中对象，该对象在本系统中消失。</p>
+<p><strong><font color="#FF0000">Note:</font></strong>该方法是基础算法，后面的算法基于该算法的改进。</p>
+<p><strong>disadvantage:</strong></p>
+<ul>
+<li><p>效率低下，标记和清除两个阶段的效率都不高。</p>
+</li>
+<li><p>空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能导致以后需要分配较大对象时，无法找到足够的连续内存而不能不提前触发另一次垃圾回收动作。</p>
+<p><img src="D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png" alt="mark_sweep.png"></p>
+</li>
+</ul>
+</li>
+<li><p>复制算法</p>
+<p><strong>特点：</strong>为了解决<strong>标记清除算法</strong>中的效率问题。</p>
+<p><strong>content：</strong>将内存按容量划分为大小相等的两块，每次只使用其中一块。当一块用完 了，就将还存活的对象复制到另一块上面，然后将已经使用过的内存空间一次清除掉。</p>
+<p><strong>advantages:</strong> </p>
+<ul>
+<li>每次都对整个半区进行内存回收。</li>
+<li>内存回收时不用考虑内存碎片等复杂情况。</li>
+<li>分配内存只需要移动堆顶指针，按顺序分配内存即可。</li>
+<li>实现简单，运行高效。</li>
+</ul>
+<p><strong>disadvantages:</strong>  </p>
+<ul>
+<li>将内存缩小为原来的一半。代价太高。</li>
+</ul>
+<p><strong>features:</strong> </p>
+<ul>
+<li>现在商业虚拟机都采用这种算法回收新生代，IBM统计98%对象“朝生夕死”，所以比例不需要1:1的比例划分内存空间。</li>
+<li>将内存划分为一个较大的<strong>Eden区</strong>和两个较小的<strong>Survivor区</strong>,每次使用<strong>Eden区</strong>和其中一块<strong>Survivor区</strong>.</li>
+<li>回收时，将<strong>Eden</strong>和<strong>Survivor</strong>中还存活的对象一次性复制到另一块<strong>Survivior</strong>空间上；最后清理掉<strong>Eden</strong>和刚才用过的<strong>Survivor</strong>空间。</li>
+<li>HotSpot虚拟机默认<strong>Eden</strong>和<strong>Survivor</strong> 的大小比例为8:1，每次新生代可用内存空间占整个新生代容量的90%（80%+10%）,只有10%的内存被浪费。</li>
+<li>如果回收完还剩超过10%的对象存活，当<strong>survivor</strong>空间不够用时，需要依赖其他内存（这里指<strong>老年代</strong>）进行<strong>分配担保</strong>（Handle Promotion）。</li>
+</ul>
+<p><img src="D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png" alt="copy.png"></p>
+</li>
+<li><p>标记-整理算法</p>
+<p><strong>solution for problems：</strong>复制算法在对象存活率较高时就要进行较多的复制操作，效率就会变低，如果不使用1：1进行划分，那么就需要很多担保空间，因此老年代一般不能直接选用<strong>复制算法</strong>。</p>
+<p><strong>definition：</strong> 和<strong>标记-清除</strong>算法的标记过程一样，但是后续步骤不是直接对可回收对象进行清理，而是让所有存活对象都向一段移动，然后直接清理掉端边界以外的内存。</p>
+<p><img src="D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg" alt="mark_compacy.jpg"></p>
+</li>
+<li><p>分代收集算法</p>
+<ul>
+<li>现在商业虚拟机的垃圾回收都采用<strong>分代收集</strong>算法。根据对象存活周期的不同将内存划分为几块。</li>
+<li>一般将<strong>Java堆</strong>分为<strong>新生代</strong>和<strong>老年代</strong>。根据不同年代采用最适当的手机算法。</li>
+<li><strong>新生代：</strong>每次垃圾收集时都会发现大批对象死去，只有少量存活，那就选择赋值算法，只需要付出少量存活对象的复制成本就可以完成收集。</li>
+<li><strong>老年代：</strong>对象存活率比较高没有额外空间对其进行分配担保，就必须使用<strong>标记-清理</strong>或者<strong>标记整理</strong>进行回收。</li>
+</ul>
+</li>
+</ul>
 </li>
 </ol>
-
+<pre><code>7. **HotSpot 的算法实现**
+   + **&lt;font color=#0000FF&gt;枚举根节点:&lt;/font&gt;**
+     + **GC Roots：**该节点主要在全局性的引用（例如常量或类静态属性）与执行上下文（例如栈帧中的本地变量表）中.**
+     + **一致性：**在整个分析期间整个执行系统看起来就像被冻结在某个时间点上，不可以出现分析过程中对象引用关系孩子不断变化的情况，该点就不满足的话分析结果准确性就无法得到保证。
+     + **停顿：**在GC执行的时候需要停顿所有Java执行线程（sun公司惩治为Stop-The-World）.
+   + 
+8. **垃圾收集器**
+9. **内存分配和回收策略**</code></pre>
       
 
       
@@ -477,6 +561,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">张三</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
@@ -490,10 +578,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">JVM</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">张三</a>
               </li>
              
               <li class="article-tag-list-item">
