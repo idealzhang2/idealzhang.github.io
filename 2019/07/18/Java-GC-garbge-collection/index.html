@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
 <meta property="og:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png">
 <meta property="og:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg">
-<meta property="og:updated_time" content="2019-07-19T09:34:46.510Z">
+<meta property="og:updated_time" content="2019-07-22T14:30:03.213Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java GC(garbge collection) ">
 <meta name="twitter:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
@@ -304,8 +304,57 @@
      + **GC Roots：**该节点主要在全局性的引用（例如常量或类静态属性）与执行上下文（例如栈帧中的本地变量表）中.**
      + **一致性：**在整个分析期间整个执行系统看起来就像被冻结在某个时间点上，不可以出现分析过程中对象引用关系孩子不断变化的情况，该点就不满足的话分析结果准确性就无法得到保证。
      + **停顿：**在GC执行的时候需要停顿所有Java执行线程（sun公司惩治为Stop-The-World）.
-   + 
+     + Hotpot中使用OopMap的数据结构实现一个不漏地检查所有执行上下文和全局的引用位置。OopMap帮助虚拟机对GC Roots 的枚举。
+
+   + **&lt;font color=#0000FF&gt;安全点:&lt;/font&gt;** 
+
+     + OopMap 在特定的位置记录引用的变化，这些位置叫安全点（safepoint）。只有在安全点位置GC才会停下来。
++ **特征：** 以程序”是否具有让程序长时间执行的特征“为标准。
+     + **长时间执行：** 特征：指令序列复用，如：方法调用，循环跳转，异常跳转等。这些地方通常设置为安全点。
++ **停下来的两种方式：**抢占式中断（preemptive suspension）和主动式中断(voluntary suspension).
+
+**&lt;font color=#0000FF&gt; 安全区域:&lt;/font&gt;** 在安全区域内的一段代码之中，引用关系不会发生变化。
+
 8. **垃圾收集器**
+
+   + Serial收集器：
+     + 新生代采取赋值算法暂停所有用户线程
+     + 老年代采取标记-整理算法暂停所有用户线程。
+     + 默认为客户端的垃圾回收机制。
+   + parnew收集器：
+     + par new是Serial收集器的多线程版本，除了使用多线程进行垃圾回收之外，其余包括控制参数，手机算法，Stop-The-World，对象分配规则，回收策略等都与Serial收集器完全一样。
+     + 主要为Server模式下虚拟机首选的新生代收集器。
+     + 除了Serial收集器外，只有ParNew能和CMS收集器配合。
+   + parallel Scaverenge 收集器：
+     + 新生代收集器，使用复制算法的收集器，并行多线程收集器。
+     + **目标：** 达到一个可控的吞吐量（Throughtput）。
+     + **吞吐量：** CPU用于运行用户代码的时间与CPU消耗时间的比值，即吞吐量=运行用户代码时间/（运行用户代码时间+垃圾收集时间）。
+     + 停顿时间越短越合适需要和用户交互的程序，提高用户体验。
+     + **两个重要参数：** 最大垃圾收集停顿时间：-XX：MaxGCPauseMilis(大于0的毫秒数);直接设置吞吐量大小：-XX：GCTimeRatio（大于0小于100的整数）.
+     + 吞吐量优先。
+     + **开关参数：**-XX：+UseAdaptiveSizePolicy.打开开关之后，就不需要手工指定新生代的大小（-Xmn），Eden与Survivor区的比例（-XX:SurvivorRatio）,晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数。
+     + 开关参数打开，虚拟机采取GC自适应的调节策略（GC Ergonomics）.
+     + 自适应调节策略也是Parallel  Scavenge收集器与ParNew收集器的一个重要区别。
+   + serial old 收集器：
+     + Serial收集器的老年代版本，同样是一个单线程收集器，使用**标记-整理**算法。
+     + 主要在Client模式下的虚拟机使用。
+     + **如果在Server模式下两大用途：**
+       + JDK1.5以及之前的版本中与Parallel Scavenge收集器搭配使用。
+       + 作为CMS收集器的后备预案，在并发收集器发生Concurrent Mode Failure时使用。
+   + cms收集器：
+     + **定义：** 一种以获取最短回收停顿时间为目标的收集器。
+     + **应用范围：** 互联网网站；B/S系统的服务端。（重视服务的响应速度 ，减少系统停顿时间）。
+     + **实现：** 基于**标记-清除** 算法实现的。
+     + **实现步骤：**
+       + 初始标记(CMS initial mark)
+       + 并发标记(CMS concurrent mark)
+       + 重新标记(CMS remark)
+       + 并发清除(CMS concurrent sweep)
+   + Parallel Old收集器：
+     + Parallel Old是Parallel Scavenge收集器的老年代版本，使用多线程和**标记-整理**算法。
+     + 新生代选择Parallel Scavenge 收集器，老年代除了Serial Old（PS MarkSweep）收集器外别无选择。
+   + GI收集器：
+
 9. **内存分配和回收策略**</code></pre>
       
 
