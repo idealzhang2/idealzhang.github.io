@@ -16,14 +16,14 @@
 <meta property="og:site_name" content="Find the truth">
 <meta property="og:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
-<meta property="og:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png">
-<meta property="og:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg">
-<meta property="og:updated_time" content="2019-07-22T14:30:03.213Z">
+<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg">
+<meta property="og:updated_time" content="2019-07-23T13:57:55.392Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java GC(garbge collection) ">
 <meta name="twitter:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
-<meta name="twitter:image" content="http://yoursite.com/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png">
   
     <link rel="alternative" href="/atom.xml" title="Find the truth" type="application/atom+xml">
   
@@ -248,14 +248,14 @@
 <li><p><strong><font color="#0000FF">垃圾回收算法</font></strong></p>
 <ul>
 <li><p>标记-清除算法</p>
-<p> <strong>definition：</strong>标记-清除（Mark-Sweep）分为<strong>标记</strong>和<strong>清除</strong> 两个阶段。<strong>标记：</strong>       1,2,3,4,5的判定方法。<strong>回收：</strong>回收系统中对象，该对象在本系统中消失。</p>
+<p><strong>definition：</strong>标记-清除（Mark-Sweep）分为<strong>标记</strong>和<strong>清除</strong> 两个阶段。<strong>标记：</strong>       1,2,3,4,5的判定方法。<strong>回收：</strong>回收系统中对象，该对象在本系统中消失。</p>
 <p><strong><font color="#FF0000">Note:</font></strong>该方法是基础算法，后面的算法基于该算法的改进。</p>
 <p><strong>disadvantage:</strong></p>
 <ul>
 <li><p>效率低下，标记和清除两个阶段的效率都不高。</p>
 </li>
 <li><p>空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能导致以后需要分配较大对象时，无法找到足够的连续内存而不能不提前触发另一次垃圾回收动作。</p>
-<p><img src="/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png" alt="mark_sweep.png"></p>
+<p><img src="/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_weep.png" alt="mark_sweep.png"></p>
 </li>
 </ul>
 </li>
@@ -281,12 +281,12 @@
 <li>HotSpot虚拟机默认<strong>Eden</strong>和<strong>Survivor</strong> 的大小比例为8:1，每次新生代可用内存空间占整个新生代容量的90%（80%+10%）,只有10%的内存被浪费。</li>
 <li>如果回收完还剩超过10%的对象存活，当<strong>survivor</strong>空间不够用时，需要依赖其他内存（这里指<strong>老年代</strong>）进行<strong>分配担保</strong>（Handle Promotion）。</li>
 </ul>
-<p><img src="/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png" alt="copy.png"></p>
+<p><img src="/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Ccopy.png" alt="copy.png"></p>
 </li>
 <li><p>标记-整理算法</p>
 <p><strong>solution for problems：</strong>复制算法在对象存活率较高时就要进行较多的复制操作，效率就会变低，如果不使用1：1进行划分，那么就需要很多担保空间，因此老年代一般不能直接选用<strong>复制算法</strong>。</p>
 <p><strong>definition：</strong> 和<strong>标记-清除</strong>算法的标记过程一样，但是后续步骤不是直接对可回收对象进行清理，而是让所有存活对象都向一段移动，然后直接清理掉端边界以外的内存。</p>
-<p><img src="/.com//D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg" alt="mark_compacy.jpg"></p>
+<p><img src="/2019/07/18/Java-GC-garbge-collection/D:%5Csoftware%5CHexo%5Csource%5Cimages%5CJVM_GC%5Cmark_compact.jpg" alt="mark_compacy.jpg"></p>
 </li>
 <li><p>分代收集算法</p>
 <ul>
@@ -300,62 +300,119 @@
 </li>
 </ol>
 <pre><code>7. **HotSpot 的算法实现**
-   + **&lt;font color=#0000FF&gt;枚举根节点:&lt;/font&gt;**
-     + **GC Roots：**该节点主要在全局性的引用（例如常量或类静态属性）与执行上下文（例如栈帧中的本地变量表）中.**
-     + **一致性：**在整个分析期间整个执行系统看起来就像被冻结在某个时间点上，不可以出现分析过程中对象引用关系孩子不断变化的情况，该点就不满足的话分析结果准确性就无法得到保证。
-     + **停顿：**在GC执行的时候需要停顿所有Java执行线程（sun公司惩治为Stop-The-World）.
-     + Hotpot中使用OopMap的数据结构实现一个不漏地检查所有执行上下文和全局的引用位置。OopMap帮助虚拟机对GC Roots 的枚举。
+   - **&lt;font color=#0000FF&gt;枚举根节点:&lt;/font&gt;**
+     - **GC Roots：**该节点主要在全局性的引用（例如常量或类静态属性）与执行上下文（例如栈帧中的本地变量表）中.
+     - **一致性：**在整个分析期间整个执行系统看起来就像被冻结在某个时间点上，不可以出现分析过程中对象引用关系孩子不断变化的情况，该点就不满足的话分析结果准确性就无法得到保证。
+     - **停顿：**在GC执行的时候需要停顿所有Java执行线程（sun公司惩治为Stop-The-World）.
+     - Hotpot中使用OopMap的数据结构实现一个不漏地检查所有执行上下文和全局的引用位置。OopMap帮助虚拟机对GC Roots 的枚举。
+   - **&lt;font color=#0000FF&gt;安全点:&lt;/font&gt;** 
+     - OopMap 在特定的位置记录引用的变化，这些位置叫安全点（safepoint）。只有在安全点位置GC才会停下来。
 
-   + **&lt;font color=#0000FF&gt;安全点:&lt;/font&gt;** 
-
-     + OopMap 在特定的位置记录引用的变化，这些位置叫安全点（safepoint）。只有在安全点位置GC才会停下来。
-+ **特征：** 以程序”是否具有让程序长时间执行的特征“为标准。
-     + **长时间执行：** 特征：指令序列复用，如：方法调用，循环跳转，异常跳转等。这些地方通常设置为安全点。
-+ **停下来的两种方式：**抢占式中断（preemptive suspension）和主动式中断(voluntary suspension).
+- **特征：** 以程序”是否具有让程序长时间执行的特征“为标准。
+  - **长时间执行：** 特征：指令序列复用，如：方法调用，循环跳转，异常跳转等。这些地方通常设置为安全点。
+- **停下来的两种方式：**抢占式中断（preemptive suspension）和主动式中断(voluntary suspension).
 
 **&lt;font color=#0000FF&gt; 安全区域:&lt;/font&gt;** 在安全区域内的一段代码之中，引用关系不会发生变化。
 
 8. **垃圾收集器**
 
-   + Serial收集器：
-     + 新生代采取赋值算法暂停所有用户线程
-     + 老年代采取标记-整理算法暂停所有用户线程。
-     + 默认为客户端的垃圾回收机制。
-   + parnew收集器：
-     + par new是Serial收集器的多线程版本，除了使用多线程进行垃圾回收之外，其余包括控制参数，手机算法，Stop-The-World，对象分配规则，回收策略等都与Serial收集器完全一样。
-     + 主要为Server模式下虚拟机首选的新生代收集器。
-     + 除了Serial收集器外，只有ParNew能和CMS收集器配合。
-   + parallel Scaverenge 收集器：
-     + 新生代收集器，使用复制算法的收集器，并行多线程收集器。
-     + **目标：** 达到一个可控的吞吐量（Throughtput）。
-     + **吞吐量：** CPU用于运行用户代码的时间与CPU消耗时间的比值，即吞吐量=运行用户代码时间/（运行用户代码时间+垃圾收集时间）。
-     + 停顿时间越短越合适需要和用户交互的程序，提高用户体验。
-     + **两个重要参数：** 最大垃圾收集停顿时间：-XX：MaxGCPauseMilis(大于0的毫秒数);直接设置吞吐量大小：-XX：GCTimeRatio（大于0小于100的整数）.
-     + 吞吐量优先。
-     + **开关参数：**-XX：+UseAdaptiveSizePolicy.打开开关之后，就不需要手工指定新生代的大小（-Xmn），Eden与Survivor区的比例（-XX:SurvivorRatio）,晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数。
-     + 开关参数打开，虚拟机采取GC自适应的调节策略（GC Ergonomics）.
-     + 自适应调节策略也是Parallel  Scavenge收集器与ParNew收集器的一个重要区别。
-   + serial old 收集器：
-     + Serial收集器的老年代版本，同样是一个单线程收集器，使用**标记-整理**算法。
-     + 主要在Client模式下的虚拟机使用。
-     + **如果在Server模式下两大用途：**
-       + JDK1.5以及之前的版本中与Parallel Scavenge收集器搭配使用。
-       + 作为CMS收集器的后备预案，在并发收集器发生Concurrent Mode Failure时使用。
-   + cms收集器：
-     + **定义：** 一种以获取最短回收停顿时间为目标的收集器。
-     + **应用范围：** 互联网网站；B/S系统的服务端。（重视服务的响应速度 ，减少系统停顿时间）。
-     + **实现：** 基于**标记-清除** 算法实现的。
-     + **实现步骤：**
-       + 初始标记(CMS initial mark)
-       + 并发标记(CMS concurrent mark)
-       + 重新标记(CMS remark)
-       + 并发清除(CMS concurrent sweep)
-   + Parallel Old收集器：
-     + Parallel Old是Parallel Scavenge收集器的老年代版本，使用多线程和**标记-整理**算法。
-     + 新生代选择Parallel Scavenge 收集器，老年代除了Serial Old（PS MarkSweep）收集器外别无选择。
-   + GI收集器：
+   - Serial收集器：
 
-9. **内存分配和回收策略**</code></pre>
+     - 新生代采取赋值算法暂停所有用户线程
+     - 老年代采取标记-整理算法暂停所有用户线程。
+     - 默认为客户端的垃圾回收机制。
+
+   - parnew收集器：
+
+     - par new是Serial收集器的多线程版本，除了使用多线程进行垃圾回收之外，其余包括控制参数，手机算法，Stop-The-World，对象分配规则，回收策略等都与Serial收集器完全一样。
+     - 主要为Server模式下虚拟机首选的新生代收集器。
+     - 除了Serial收集器外，只有ParNew能和CMS收集器配合。
+
+   - parallel Scaverenge 收集器：
+
+     - 新生代收集器，使用复制算法的收集器，并行多线程收集器。
+     - **目标：** 达到一个可控的吞吐量（Throughtput）。
+     - **吞吐量：** CPU用于运行用户代码的时间与CPU消耗时间的比值，即吞吐量=运行用户代码时间/（运行用户代码时间+垃圾收集时间）。
+     - 停顿时间越短越合适需要和用户交互的程序，提高用户体验。
+     - **两个重要参数：** 最大垃圾收集停顿时间：-XX：MaxGCPauseMilis(大于0的毫秒数);直接设置吞吐量大小：-XX：GCTimeRatio（大于0小于100的整数）.
+     - 吞吐量优先。
+     - **开关参数：**-XX：+UseAdaptiveSizePolicy.打开开关之后，就不需要手工指定新生代的大小（-Xmn），Eden与Survivor区的比例（-XX:SurvivorRatio）,晋升老年代对象年龄（-XX:PretenureSizeThreshold）等细节参数。
+     - 开关参数打开，虚拟机采取GC自适应的调节策略（GC Ergonomics）.
+     - 自适应调节策略也是Parallel  Scavenge收集器与ParNew收集器的一个重要区别。
+
+   - serial old 收集器：
+
+     - Serial收集器的老年代版本，同样是一个单线程收集器，使用**标记-整理**算法。
+     - 主要在Client模式下的虚拟机使用。
+     - **如果在Server模式下两大用途：**
+       - JDK1.5以及之前的版本中与Parallel Scavenge收集器搭配使用。
+       - 作为CMS收集器的后备预案，在并发收集器发生Concurrent Mode Failure时使用。
+
+   - cms收集器：
+
+     - **定义：** 一种以获取最短回收停顿时间为目标的收集器。
+
+     - **应用范围：** 互联网网站；B/S系统的服务端。（重视服务的响应速度 ，减少系统停顿时间）。
+
+     - **实现：** 基于**标记-清除** 算法实现的。
+
+     - **实现步骤：**
+
+       - 初始标记(CMS initial mark)
+
+       - 并发标记(CMS concurrent mark)
+
+       - 重新标记(CMS remark)
+
+       - 并发清除(CMS concurrent sweep)
+
+         **&lt;font color=#FF0000&gt; Note:&lt;/font&gt;** 初始标记，重新标记这两步仍然需要**Stop The World**，并发收集，低停顿。对CPU资源敏感，回收线程数=（CPU数量+3）/4,CPU 数量越多影响越小，少于4个时候对用户程序影响比较大。**增量式并发收集器（Incremental Concurrent Mark Sweep /i-CMS）**。
+
+         CMS 收集器的内存回收过程是与用户线程一起并发执行的。整个过程中耗时最长的并发标记和并发清除过程收集器都可以与用户一起工作。
+
+         CMS收集器无法处理浮动垃圾（Floating Garbage）可能出现**Concurrent Mode Failure**失败而导致另一次FullGC的产生。
+
+         需要预留空间提供并发收集时的程序运作使用。
+
+         采用**标记-清理**会产生很多碎片垃圾，提前触发一次Full GC ，停顿时间边长。
+
+   - Parallel Old收集器：
+
+     - Parallel Old是Parallel Scavenge收集器的老年代版本，使用多线程和**标记-整理**算法。
+     - 新生代选择Parallel Scavenge 收集器，老年代除了Serial Old（PS MarkSweep）收集器外别无选择。
+
+   - G1收集器：
+
+     - (Garbage-First) 
+     - **festures:**  并行与并发：（通过多CPU中并发来减少停顿时间）。分代收集；空间整合；可预测的停顿。
+     - 不使用新生代和老年代，
+     - 将内存划分为多个大小相等的独立区域（Region），保留新生代和老年代的概念，但是不再物理隔离了，都是一部分Region的集合（不必连续）。
+     - 跟踪每个Region里面的垃圾堆积大小（回收获得的空间大小和所需要的时间），在规定时间内优先回收价值最大的Region。
+     - Remembered Set 避免全堆扫描。
+     - **步骤：** 初始标记（Initial Marking），并发标记(Concurrent Marking)，最终标记(Final Marking)，筛选回收(Live Data Counting and Evacuation)
+
+9. **内存分配和回收策略**
+
+   **内存管理主要解决两个问题：** 给对象分配内存以及回收分配给对象的内存。
+
+   **对象优先在Eden分配：** 新对象-&gt;Eden区分配-&gt;如果Eden空间不足-&gt;虚拟机发起Minor GC-&gt;Enden 对象无法放入到Survivor中-&gt;分配担保机制将Eden中对象转移到老年代中。
+
+   **大对象直接进入老年代：** **大对象：**需要大量连续内存空间的Java对象，比如：很长的字符串以及数组。
+
+   **大对象** 属于坏消息，**更坏的消息：** 短命大对象。
+
+   **&lt;font color=#FF0000&gt;Note:&lt;/font&gt;** 
+
+   - -XX:PretenureSizeThreshold 大于该值的对象直接在老年代分配，**目的：**避免在Eden区和两个Survivor区之间发生大量的内存复制 
+   - 长期存活的对象将进入老年代。（虚拟机给每个对象定义一个年龄（Age）计数器。每熬过一次minor GC年龄就增加1岁并移动到Survivor中。默认增加到15岁就放入老年代中。最大年龄由-XX：MaxTenuringThreshold设置的。
+
+   **动态对象年龄判定：**
+
+   - 如果在Survivor空间职工相同年龄所有对象大小总和大于Survivor空间的一半，年龄大于或等于该年龄的对象进入老年代，无需等到MaxTenuringThreshold中要求的年龄。
+
+   **空间分配担保：**
+
+   - Minor GC 之前虚拟机检查老年代最大可用的连续空间是否大于新生代所有对象总空间，如果大于，Minor GC是安全的可以执行。如果不是，虚拟机检查HandlePromotionFailure设置值是否允许担保失败，如果允许，继续检查老年代最大可用连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，尝试一次Minor GC（有风险），如果小于或者HandlePromotionFailure设置不允许冒险，那么改为一次Full GC。</code></pre>
       
 
       
@@ -610,10 +667,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">张三</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">string</a>
               </li>
              
@@ -627,6 +680,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">array</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">张三</a>
               </li>
              
               <li class="article-tag-list-item">
