@@ -16,14 +16,14 @@
 <meta property="og:site_name" content="Find the truth">
 <meta property="og:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/mark_weep.png">
-<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/%5Ccopy.png">
-<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/%5Cmark_compact.jpg">
-<meta property="og:updated_time" content="2019-07-23T14:25:29.124Z">
+<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Cmark_weep.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Ccopy.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Cmark_compact.jpg">
+<meta property="og:updated_time" content="2019-07-23T14:28:43.993Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java GC(garbge collection) ">
 <meta name="twitter:description" content="JVM垃圾回收机制一判断对象是否已死二对已死对象如何回收（回收算法）三垃圾收集器四内存回收策略">
-<meta name="twitter:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/mark_weep.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Cmark_weep.png">
   
     <link rel="alternative" href="/atom.xml" title="Find the truth" type="application/atom+xml">
   
@@ -255,7 +255,7 @@
 <li><p>效率低下，标记和清除两个阶段的效率都不高。</p>
 </li>
 <li><p>空间问题，标记清除后会产生大量不连续的内存碎片，空间碎片太多可能导致以后需要分配较大对象时，无法找到足够的连续内存而不能不提前触发另一次垃圾回收动作。</p>
-<p><img src="//yoursite.com/2019/07/18/Java-GC-garbge-collection/mark_weep.png" alt="mark_sweep.png"></p>
+<p><img src="//yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Cmark_weep.png" alt="mark_sweep.png"></p>
 </li>
 </ul>
 </li>
@@ -281,12 +281,12 @@
 <li>HotSpot虚拟机默认<strong>Eden</strong>和<strong>Survivor</strong> 的大小比例为8:1，每次新生代可用内存空间占整个新生代容量的90%（80%+10%）,只有10%的内存被浪费。</li>
 <li>如果回收完还剩超过10%的对象存活，当<strong>survivor</strong>空间不够用时，需要依赖其他内存（这里指<strong>老年代</strong>）进行<strong>分配担保</strong>（Handle Promotion）。</li>
 </ul>
-<p><img src="//yoursite.com/2019/07/18/Java-GC-garbge-collection/%5Ccopy.png" alt="copy.png"></p>
+<p><img src="//yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Ccopy.png" alt="copy.png"></p>
 </li>
 <li><p>标记-整理算法</p>
 <p><strong>solution for problems：</strong>复制算法在对象存活率较高时就要进行较多的复制操作，效率就会变低，如果不使用1：1进行划分，那么就需要很多担保空间，因此老年代一般不能直接选用<strong>复制算法</strong>。</p>
 <p><strong>definition：</strong> 和<strong>标记-清除</strong>算法的标记过程一样，但是后续步骤不是直接对可回收对象进行清理，而是让所有存活对象都向一段移动，然后直接清理掉端边界以外的内存。</p>
-<p><img src="//yoursite.com/2019/07/18/Java-GC-garbge-collection/%5Cmark_compact.jpg" alt="mark_compacy.jpg"></p>
+<p><img src="//yoursite.com/2019/07/18/Java-GC-garbge-collection/Java-GC-garbge-collection%5Cmark_compact.jpg" alt="mark_compacy.jpg"></p>
 </li>
 <li><p>分代收集算法</p>
 <ul>
