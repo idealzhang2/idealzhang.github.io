@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Find the truth">
 <meta property="og:description" content="线程安全锁优化">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-02T14:16:04.221Z">
+<meta property="og:updated_time" content="2019-08-02T14:30:56.118Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 线程安全和锁">
 <meta name="twitter:description" content="线程安全锁优化">
@@ -247,9 +247,14 @@
 <li><strong>定义：</strong> jdk1.6之后加入的新型锁机制。传统基于系统互斥量来实现的传统锁称之为<strong>重量级锁</strong>，相对于传统锁来说，轻量级锁不是用来代替重量级锁的，本意是在没有多线程竞争的前提下，减少传统的重量级锁使用操作系统互斥量产生的性能消耗。</li>
 <li>HotSpot虚拟机的对象头部（Object Header） 分为：第一部分用于存储对象自身的运行时数据，如哈希吗（HashCode），GC分代年龄（Generational GC Age）等。该部分是实现轻量级锁和偏向锁的关键。该部分也被称之为<strong>Mark Word</strong>另一部分用户存储只想方法区对象类型数据的指针，如果是数组对象的话，还会有一个额外的部分用于存储数组长度。</li>
 <li><strong>Mark Word：</strong> 32bit中25bit用于存储对象哈希码（HashCode），4bit用于存储对象分代年龄，2bit用于存储锁标志位，1bit固定为0.</li>
+<li>轻量级锁在无竞争的情况下效果很好，有竞争的情况下比传统的重量级锁更慢。</li>
 </ul>
 </li>
-<li><strong>偏向锁：</strong></li>
+<li><strong>偏向锁：</strong><ul>
+<li>JDK1.6后引入的一项锁优化。</li>
+<li><strong>目的：</strong> 消除数据在无竞争情况下的同步原语，进一步提高程序的运行效率。</li>
+</ul>
+</li>
 </ol>
 
       
