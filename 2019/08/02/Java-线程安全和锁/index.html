@@ -6,19 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | Find the truth</title>
+  <title>Java 线程安全和锁 | Find the truth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="A blog of a little bird">
-<meta name="keywords" content="blog,IT,Deep Learning,software,basic">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Find the truth">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+  <meta name="description" content="线程安全锁优化">
+<meta name="keywords" content="Java,锁,lock">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 线程安全和锁">
+<meta property="og:url" content="http://yoursite.com/2019/08/02/Java-线程安全和锁/index.html">
 <meta property="og:site_name" content="Find the truth">
-<meta property="og:description" content="A blog of a little bird">
+<meta property="og:description" content="线程安全锁优化">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-02T08:20:45.508Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Find the truth">
-<meta name="twitter:description" content="A blog of a little bird">
+<meta name="twitter:title" content="Java 线程安全和锁">
+<meta name="twitter:description" content="线程安全锁优化">
   
     <link rel="alternative" href="/atom.xml" title="Find the truth" type="application/atom+xml">
   
@@ -158,36 +159,100 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Java-线程安全和锁" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/08/02/Java-线程安全和锁/" class="archive-article-date">
-  	<time datetime="2019-08-02T05:36:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-02</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/08/02/Java-线程安全和锁/">Java 线程安全和锁</a>
+    <h1 class="article-title" itemprop="name">
+      Java 线程安全和锁
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/08/02/Java-线程安全和锁/" class="archive-article-date">
+  	<time datetime="2019-08-02T05:36:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><h3 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h3><a id="more"></a>
+
+<h3 id="线程安全-1"><a href="#线程安全-1" class="headerlink" title="线程安全"></a>线程安全</h3><p><strong>线程安全定义：</strong> 当多个线程访问一个对象时，如果不用考虑这些线程在运行时环境下的调度和交替执行，也不需要进行额外的同步，或者调用地方进行任何其他的协调操作，调用这个对象的所有行为都可以获得争取的结果，那么这个对象时线程安全的。</p>
+<p><strong>特征：</strong> 代码本身封装了所有必要的正确性保障手段（如互斥同步等）。弱化一些的为把“调用这个对象的行为”限定为“单次调用”.如果弱化后的条件满足的话也可以称之为线程安全。</p>
+<p><strong>前提：</strong> 一段代码与其他线程之间共享数据，就会产生线程安全问题。程序是串行还是多线程执行对于不使用共享数据的代码段来说是没有影响的。</p>
+<p><strong>操作共享数据的5类：</strong>不可变，绝对线程安全，相对线程安全，线程兼容和线程对立。</p>
+<p><strong>不可变：</strong>不可变对象（Immutable）的对象一定是线程安全的（在没有this逃逸的情况下）。保证对象的行为不影响自己装填的途径有很多中，其中一种就是将对象带有状态的白能量都声明为final，在构造函数之后这个状态就是不可变的。</p>
+<p><strong>绝对线程安全：</strong> 在满足安全定义的基础上，还要求“不管运行时的环境如何，调用者都不需要任何额外的同步措施”。</p>
+<p><strong>相对线程安全：</strong> 需要保证对这个独享的单独的操作是线程安全的，在调用的时候不需要做额外的同步手段来保证调用的正确性。vector,HashTable,Collections的synchronizedCollection()包装的方法。</p>
+<p><strong>线程兼容：</strong> </p>
+<p><strong>定义：</strong> 线程兼容是指对象本身不是线程安全的，但是可以通过调用端正确地使用同步手段来保证对象在并发环境中可以安全地使用。</p>
+<p><strong>线程对立：</strong> </p>
+<p><strong>定义：</strong> 线程对立是指无论调用端是否采取了同步措施，都无法在多线程环境中并发使用功能的代码。比如线程的suspend()和resume（）方法,如果有了两个线程同时持有一个线程对象，一个尝试去中断线程一个尝试去恢复线程，并发执行可能会产生死锁。</p>
+<h4 id="线程安全的实现方法"><a href="#线程安全的实现方法" class="headerlink" title="线程安全的实现方法"></a>线程安全的实现方法</h4><ol>
+<li><strong>互斥同步</strong> （MutuaEExclusion &amp; Synchronization）<ul>
+<li>同步指在多个线程并发访问共享数据时，保证共享数据在同一时刻只被一个（或者是一些，使用信号量的时候）线程使用。</li>
+<li>互斥指实现同步的一种手段，临界区（Critical Section），互斥量(Mutex)和信号量(Semaphore)都是主要的互斥实现方式。互斥是因，同步是果；互斥是手段，同步是目的。</li>
+<li>synchronized 经过编译后，同步块前后会产生monitorenter和moniterexit两个字节码指令。该两个字节码都需要一个reference类型的参数来指明要锁定和解锁的对象。如果参数是对象那么这个对象就是reference类型，如果是实例方法或者类方法，去取对应的对象实例或class对象来作为锁对象。</li>
+<li>synchronized同步块对于同一条线程来说是可重入的，不会自己把自己锁死。</li>
+<li>自旋等待避免频繁地切入到核心态之中。</li>
+<li>ReentrantLock来实现同步可重入，比synchronized多一些高级功能：等待可中断，可实现公平锁，以及锁可以绑定多个条件。</li>
+<li><strong>等待可中断：</strong> 当持有锁的线程长期不释放锁的时候，正在等待的线程可以选择放弃等待，改为处理其他事情，可中断特性对处理执行时间非常长的同步块有很大帮助。</li>
+<li><strong>公平锁：</strong> 指多个线程在等待同一个锁时，必须按照申请锁的时间顺序依次获得锁。Synchronized是非公平锁，ReentrantLock默认是非公平锁，可通过带布尔值的构造函数要求使用公平锁。</li>
+<li><strong>锁绑定多个条件：</strong> 指一个ReentrantLock对象可以同时绑定多个Condition对象，而在synchronized中，锁对象的wait()和notify（）或notifyAll（）方法可以实现一个隐含的条件，如果要和多以一个的条件关联的时候，就不得不额外地添加一个锁，而ReentrantLock无需这样做，只需要多几次调用newcondition（）即可。</li>
+</ul>
+</li>
+<li><strong>非阻塞同步：</strong><ul>
+<li>互斥同步的问题主要在线程阻塞和唤醒所带来的问题，这种同步称之为阻塞同步（Blocking Synchronized）。互斥同步属于悲观并发策略。</li>
+<li>“基于冲突检测的乐观并发策略”，先进行操作，如果没有其他线程争用共享数据，那么操作成功，如果共享数据有争用，产生冲突，那么就采取其他的补偿措施（比如不断重试，直到成功为止），这种情况下很多线程不需要挂起。这种操作叫做非阻塞同步。</li>
+<li><strong>相关指令：</strong> 测试并设置（Test-and-Set）.获取并增加（Fetch-and-Increment）.交换(Swap).比较并交换（compare-and-Swap）简称CAS. 加载链接/条件存储(Load-Linked/Store-Conditional简称：LL/SC)。</li>
+<li>使用带标记的原子引用类“AtomicStampedReference”, 解决ABA问题。</li>
+</ul>
+</li>
+<li><strong>无同步方案：</strong><ul>
+<li>如果不涉及共享数据就不需要任何同步措施去保证正确性。</li>
+<li><strong>可重入代码：</strong> （Reentrant Code）这种代码叫做纯代码（pure code）。执行中任何时刻可中断。返回控制权后原来的程序不会出现任何错误。</li>
+<li><strong>可重入代码特征：</strong> 例如：不依赖存储在堆上的数据和公用的系统资源，用到的状态量都由参数中传入，不调用非可重入的方法等。</li>
+<li>如果一个方法，它的返回结果是可以预测的，只要输入了相同的数据，就能返回相同的结果，那它就满足可重用行的要求，也是线程安全的。</li>
+</ul>
+</li>
+<li><strong>线程本地存储：</strong> <ul>
+<li><strong>定义：</strong> 如果一段代码中所需要的数据必须与其他代码共享，共享数据的代码能否保证在同一线程中执行？如果能，，就把共享数据的可见范围限制在同一个线程之内，这样无需同步也能保证线程之间不出现数据争用的问题。</li>
+</ul>
+</li>
+</ol>
+<h3 id="锁优化-1"><a href="#锁优化-1" class="headerlink" title="锁优化"></a>锁优化</h3>
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -207,7 +272,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -220,265 +285,104 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/08/02/Java-线程安全和锁/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/08/02/内存模型与线程/" class="archive-article-date">
-  	<time datetime="2019-08-02T01:46:09.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-02</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/08/02/内存模型与线程/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">内存模型与线程</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/08/02/内存模型与线程/">内存模型与线程</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">内存</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">memory</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">thread ，线程</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Java//" class="article-tag-list-link color5">Java</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/07/18/Java-GC-garbge-collection/" class="archive-article-date">
-  	<time datetime="2019-07-18T05:56:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-18</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/07/18/Java-GC-garbge-collection/">Java GC(garbge collection) </a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">GC</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">garbge</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/JVM//" class="article-tag-list-link color4">JVM</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/07/16/KMP的next数组生成/" class="archive-article-date">
-  	<time datetime="2019-07-16T13:13:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/07/16/KMP的next数组生成/">KMP的next数组生成</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">string</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">match</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">substring</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">array</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/string//" class="article-tag-list-link color2">string</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/05/21/First/" class="archive-article-date">
-  	<time datetime="2019-05-21T08:42:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-05-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/05/21/First/">First</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">张三</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/05/21/hello-world/" class="archive-article-date">
-  	<time datetime="2019-05-21T08:37:47.246Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-05-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/05/21/hello-world/">Hello World</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -501,8 +405,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
