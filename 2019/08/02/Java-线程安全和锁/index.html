@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Find the truth">
 <meta property="og:description" content="线程安全锁优化">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-02T08:20:45.508Z">
+<meta property="og:updated_time" content="2019-08-02T12:54:05.852Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 线程安全和锁">
 <meta name="twitter:description" content="线程安全锁优化">
@@ -224,7 +224,20 @@
 </ul>
 </li>
 </ol>
-<h3 id="锁优化-1"><a href="#锁优化-1" class="headerlink" title="锁优化"></a>锁优化</h3>
+<h3 id="锁优化-1"><a href="#锁优化-1" class="headerlink" title="锁优化"></a>锁优化</h3><ol>
+<li><strong>自旋锁与自适应锁：</strong><ul>
+<li>挂起线程和恢复线程的操作==&gt;转入内核态==&gt; 消耗资源</li>
+<li>如果物理机器有一个以上的处理器（能让两个或者以上的线程同时并行执行）</li>
+<li>共享数据的锁定状态持续时间：<strong>短：</strong>  然后后面的请求锁的那个线程“稍微等一下”，但是不放弃处理器的执行时间，看看持有锁的线程是否很快就会释放锁。为了让线程等待，在线程中执行一个忙循环（自旋）。1.6之后默认开启自旋锁，自旋等待是为了避免线程切换的开销，如果自旋时间超过限定次数灭有获得所那么就挂起线程。默认自旋次数值为10次。使用功能-XX：PreBlockSpin 来更改。</li>
+<li><strong>自适应自旋：</strong>自适应表示自旋时间不固定，而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定。 同一个锁对象，自旋等待刚刚成功获得锁，并且持有锁的线程正在运行中，虚拟机认为此次自旋也会成功，运行自旋等待持续相对更长的时间。</li>
+</ul>
+</li>
+<li><strong>锁消除：</strong></li>
+<li><strong>锁粗化：</strong></li>
+<li><strong>轻量级锁：</strong></li>
+<li><strong>偏向锁：</strong></li>
+</ol>
+
       
 
       
@@ -475,6 +488,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">张三</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
@@ -484,10 +501,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">lock</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">张三</a>
               </li>
              
               <li class="article-tag-list-item">
