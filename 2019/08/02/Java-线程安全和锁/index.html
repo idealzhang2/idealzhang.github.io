@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Find the truth">
 <meta property="og:description" content="线程安全锁优化">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-02T12:54:05.852Z">
+<meta property="og:updated_time" content="2019-08-02T14:16:04.221Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 线程安全和锁">
 <meta name="twitter:description" content="线程安全锁优化">
@@ -229,12 +229,26 @@
 <li>挂起线程和恢复线程的操作==&gt;转入内核态==&gt; 消耗资源</li>
 <li>如果物理机器有一个以上的处理器（能让两个或者以上的线程同时并行执行）</li>
 <li>共享数据的锁定状态持续时间：<strong>短：</strong>  然后后面的请求锁的那个线程“稍微等一下”，但是不放弃处理器的执行时间，看看持有锁的线程是否很快就会释放锁。为了让线程等待，在线程中执行一个忙循环（自旋）。1.6之后默认开启自旋锁，自旋等待是为了避免线程切换的开销，如果自旋时间超过限定次数灭有获得所那么就挂起线程。默认自旋次数值为10次。使用功能-XX：PreBlockSpin 来更改。</li>
-<li><strong>自适应自旋：</strong>自适应表示自旋时间不固定，而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定。 同一个锁对象，自旋等待刚刚成功获得锁，并且持有锁的线程正在运行中，虚拟机认为此次自旋也会成功，运行自旋等待持续相对更长的时间。</li>
+<li><strong>自适应自旋：</strong>自适应表示自旋时间不固定，而是由前一次在同一个锁上的自旋时间及锁的拥有者的状态来决定。 同一个锁对象，自旋等待刚刚成功获得锁，并且持有锁的线程正在运行中，虚拟机认为此次自旋也会成功，运行自旋等待持续相对更长的时间。如果对于某个锁，自旋很少成功获得过，那么以后在获取这个锁的时候忽略掉自旋过程，避免浪费处理器资源。</li>
 </ul>
 </li>
-<li><strong>锁消除：</strong></li>
-<li><strong>锁粗化：</strong></li>
-<li><strong>轻量级锁：</strong></li>
+<li><strong>锁消除：</strong><ul>
+<li><strong>定义：</strong> 锁消除是指虚拟机即时编译器在运行时，对一些代码上要求同步，但是被检测到不可能存在共享数据竞争的锁进行消除。主要判定依据来源于逃逸分析的数据支持。</li>
+<li><strong>样例：</strong> String类型    s1+s2+s3 ==&gt; StringBuffer sb = new StringBuffer();sb.append(s1);sb.append(s2);sb.append(s3);</li>
+<li>string是不可变类，对字符串的连接操作总是通过生成新的String对象来进行。jdk1.5之前转化为StringBuffer对象的连续append（）.jdk1.5之后，转化为StringBuilder 对象的连续append（）操作。每个StringBuffer.append()方法中都有一个同步块，锁的是sb对象，虚拟机观察变量sb，发现其动态作用域被限制在concatString（）方法内部。sb的所有引用永远不会逃逸到concatString（）方法之外。虽然有锁但是可以消除掉。</li>
+</ul>
+</li>
+<li><strong>锁粗化：</strong><ul>
+<li><strong>原则：</strong> 同步块的作用范围限制得尽量小。只在共享数据的实际作用域内才进行同步。</li>
+<li><strong>定义：</strong> 如果虚拟机探测到有这样一串零碎的操作都对同一对象加锁，将会把加锁同步的范围扩展（粗化）到整个操作序列的外部。</li>
+</ul>
+</li>
+<li><strong>轻量级锁：</strong><ul>
+<li><strong>定义：</strong> jdk1.6之后加入的新型锁机制。传统基于系统互斥量来实现的传统锁称之为<strong>重量级锁</strong>，相对于传统锁来说，轻量级锁不是用来代替重量级锁的，本意是在没有多线程竞争的前提下，减少传统的重量级锁使用操作系统互斥量产生的性能消耗。</li>
+<li>HotSpot虚拟机的对象头部（Object Header） 分为：第一部分用于存储对象自身的运行时数据，如哈希吗（HashCode），GC分代年龄（Generational GC Age）等。该部分是实现轻量级锁和偏向锁的关键。该部分也被称之为<strong>Mark Word</strong>另一部分用户存储只想方法区对象类型数据的指针，如果是数组对象的话，还会有一个额外的部分用于存储数组长度。</li>
+<li><strong>Mark Word：</strong> 32bit中25bit用于存储对象哈希码（HashCode），4bit用于存储对象分代年龄，2bit用于存储锁标志位，1bit固定为0.</li>
+</ul>
+</li>
 <li><strong>偏向锁：</strong></li>
 </ol>
 
@@ -492,18 +506,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">锁</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">lock</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">string</a>
               </li>
              
@@ -533,6 +535,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">thread ，线程</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">锁</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">lock</a>
               </li>
              
               <li class="article-tag-list-item">
