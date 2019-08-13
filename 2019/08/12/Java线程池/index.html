@@ -6,19 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2019/7 | Find the truth</title>
+  <title>Java线程池 | Find the truth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="A blog of a little bird">
-<meta name="keywords" content="blog,IT,Deep Learning,software,basic">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Find the truth">
-<meta property="og:url" content="http://yoursite.com/archives/2019/07/index.html">
+  <meta name="description" content="Java线程池解析">
+<meta name="keywords" content="线程池,thread">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java线程池">
+<meta property="og:url" content="http://yoursite.com/2019/08/12/Java线程池/index.html">
 <meta property="og:site_name" content="Find the truth">
-<meta property="og:description" content="A blog of a little bird">
+<meta property="og:description" content="Java线程池解析">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/thread_process.png">
+<meta property="og:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/exception_example.png">
+<meta property="og:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/fetrue_example.png">
+<meta property="og:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/feture_code.png">
+<meta property="og:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/uncaught_exception.png">
+<meta property="og:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/threadpoolexecutor_example.png">
+<meta property="og:updated_time" content="2019-08-13T02:00:20.944Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Find the truth">
-<meta name="twitter:description" content="A blog of a little bird">
+<meta name="twitter:title" content="Java线程池">
+<meta name="twitter:description" content="Java线程池解析">
+<meta name="twitter:image" content="http://yoursite.com/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/thread_process.png">
   
     <link rel="alternative" href="/atom.xml" title="Find the truth" type="application/atom+xml">
   
@@ -158,144 +166,288 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Java线程池" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/07/18/Java-GC-garbge-collection/" class="archive-article-date">
-  	<time datetime="2019-07-18T05:56:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-18</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/07/18/Java-GC-garbge-collection/">Java GC(garbge collection) </a>
+    <h1 class="article-title" itemprop="name">
+      Java线程池
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/08/12/Java线程池/" class="archive-article-date">
+  	<time datetime="2019-08-12T03:08:58.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-12</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Java线程池解析"><a href="#Java线程池解析" class="headerlink" title="Java线程池解析"></a>Java线程池解析</h2><a id="more"></a>
+
+<p>Q1:Java的线程池说一下，各个参数的作用，如何进行？</p>
+<p>Q2:按线程池内部机制，当提交新任务时，有哪些异常要考虑?</p>
+<p>Q3:线程池都有哪几种工作队列？</p>
+<p>Q4:使用无界队列的线程池会导致内存飙升吗？</p>
+<p>Q5:说说几种常见的线程池及使用场景?</p>
+<p><strong>A1：</strong> 线程池就是帮我们管理线程的池子。</p>
+<ul>
+<li><strong>它帮助我们管理线程，避免增加创建线程和销毁线程的资源消耗</strong>。因为一个线程其实也是一个对象，创建一个对象，需要经过类加载过程，销毁一个对象，需要走GC垃圾回收流程，都是需要资源开销的。</li>
+<li><strong>提高响应速度</strong>，如果任务到达了，相对于从线程池中拿线程，重新去创建一条线程执行，速度肯定慢很多。</li>
+<li><strong>重复利用</strong>。线程用完，再放回池子，可以达到重复利用的效果，节约资源。</li>
+</ul>
+<p><strong>A2:</strong> 线程池的创建</p>
+<ul>
+<li><p>线程池可以通过ThreadPoolExecutor来创建，以下是其构造函数：</p>
+</li>
+<li><p>public ThreadPoolExecutor(int corePoolSize, int maximumPoolSize,long keepAliveTime,TimeUnit unit,    </p>
+</li>
+<li><p>   BlockingQueue<runnable> workQueue,    </runnable></p>
+</li>
+<li><p>   ThreadFactory threadFactory,    </p>
+</li>
+<li><p>   RejectedExecutionHandler handler)</p>
+</li>
+</ul>
+<p><strong>以下是几个核心参数：</strong></p>
+<ul>
+<li>corePoolSize: 线程池核心线程数最大值。</li>
+<li>maximumPoolSize:线程池最大线程数大小</li>
+<li>keepAliveTime: 线程池中非核心线程空闲的存活时间大小</li>
+<li>unit：线程空闲存活时间单位</li>
+<li>workQueue：存放任务的阻塞队列</li>
+<li>ThreadFactory：用于设置创建线程的工厂，可以创建的线程设置有意义的名字，可方便排查问题。</li>
+<li>Handler：<strong>线程池的饱和策略</strong>。</li>
+</ul>
+<p><strong>任务执行：</strong></p>
+<p><img src="/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/thread_process.png" alt="thread_process.png"></p>
+<ul>
+<li>提交一个任务，线程池里存活的核心线程数小于线程数corePoolSize时，线程池会创建一个核心线程去吃力提交的任务。</li>
+<li>如果线程池核心线程数已满，即线程数已经等于corePoolSize了，并且任务队列workQueue也满，判断线程数是否达到maximumPoolSize,即最大献策好难过树是否已满，如果没有达到，创建一个非核心线程执行提交的任务。</li>
+<li>如果当前的线程数达到了maximumPoolSize，还有新的任务过来的话，直接采取拒绝策略处理。</li>
+</ul>
+<h4 id="四种拒绝策略"><a href="#四种拒绝策略" class="headerlink" title="四种拒绝策略"></a>四种拒绝策略</h4><ul>
+<li>AbortPolicy（抛出一个异常，默认的）</li>
+<li>DiscardPolicy（直接丢弃任务）</li>
+<li>DiscardOldestPolicy（丢弃队列里最老的任务，将当前这个任务继续提交给线程池）</li>
+<li>CallerRunsPolicy（交给线程池调用所在的线程进行处理）</li>
+</ul>
+<h4 id="线程池异常处理"><a href="#线程池异常处理" class="headerlink" title="线程池异常处理"></a>线程池异常处理</h4><p><strong>note：</strong> 在使用线程池处理任务的时候，任务代码可能抛出RuntimeException，抛出异常后，线程池可能捕获它，也可能创建一个新的线程来代替异常的线程，我们无法感知任务出现了问题，因此我们要考虑线程池异常情况。</p>
+<p><strong>当提交新任务时，异常如何处理：</strong></p>
+<p><img src="/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/exception_example.png" alt="exception_example.png"></p>
+<p>代码没有抛出异常。必须添加try/catch来捕捉异常。</p>
+<p><strong>线程池exec.submit(runnable)的执行流程：</strong></p>
+<p><img src="/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/fetrue_example.png" alt="fetrue_example.png"></p>
+<p>submit执行的任务，可以通过feture对象的get方法接受抛出的对象，再进行处理。</p>
+<p><img src="/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/feture_code.png" alt="feture_code.png"></p>
+<p><strong>另外两种处理方式：</strong></p>
+<p>为工作线程设置UncaughtExceptionHandler，在uncaughtException方法中处理异常</p>
+<p><img src="/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/uncaught_exception.png" alt="uncaught_exception.png"></p>
+<p>重写ThreadPoolExecutor的afterExecute的方法，处理传递的异常引用。</p>
+<p><img src="/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/threadpoolexecutor_example.png" alt="threadpoolexecutor_example.png"></p>
+<p><font color="#FF0000"><strong>被问到线程池异常处理时，如何回答？</strong></font></p>
+<ul>
+<li>try-catch</li>
+<li>submit执行，Feture.get 接受异常</li>
+<li>重写ThreadPoolExecute方法，吃醋李传递的异常引用</li>
+<li>实例化，传入自己的ThreadFactory设置Thread.UncaughtExceptionHandler处理未检测的异常</li>
+</ul>
+<h4 id="线程池的工作队列"><a href="#线程池的工作队列" class="headerlink" title="线程池的工作队列"></a>线程池的工作队列</h4><ul>
+<li>ArrayBlockingQueue （有界队列）是一个 用数组实现的有界阻塞队列，按FIFO排序量</li>
+<li>LinkedBlockingQueue   （可设置容量队列）基于；链表结构的阻塞队列，按FIFO排序任务，容量可以选择进行设置，不设置的话，将是一个无边界的阻塞队列，最大长度为Integer。MAX_VALUE，吞吐量通常高于ArrayBlockingQueue；newFixedThreadPool线程池使用了这个队列。</li>
+<li>DelayQueue（延迟队列） 是一个任务定时周期的延迟执行的队列。根据指定的执行时间从小到大排序，否则根据插入到队列的先后顺序。newScheduledthreadPool线程池使用了这个队列。</li>
+<li>PriorityBlockingQueue （优先级队列）是具有优先级的无界阻塞队列。</li>
+<li>SynchronousQueue （同步队列）一个不存储匀速的阻塞队列，每个插入操作必须等到另一个线程调用移出操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQueue，newCachedThreadPool线程池使用了这个队列。</li>
+</ul>
+<h4 id="几种常用的线程池"><a href="#几种常用的线程池" class="headerlink" title="几种常用的线程池"></a>几种常用的线程池</h4><ul>
+<li><p>newFixedThreadPool（固定数目线程的线程池）</p>
+<p><strong>Feature：</strong></p>
+<ol>
+<li>线程核心数和最大线程数大小一样，</li>
+</ol>
+<p>2.没有所谓的非空闲时间，即keepAliveTime为0，</p>
+<p>3.阻塞队列为无界队列LinkedBlockingQueue。</p>
+<p>4.适用于CPU密集型的任务，确保CPU在长期被工作线程使用的情况下，尽可能的少分配线程，</p>
+<p><strong>适用场景：</strong>即适用执行长期任务。</p>
+</li>
+<li><p>newCachedThreadPool（可缓存线程的线程池）</p>
+<p><strong>Feature：</strong> </p>
+<p>1.线程核心数为0.</p>
+<p>2.最大线程数为Integer.Max_value.</p>
+<p>3.阻塞对垒是SynchronousQueue.</p>
+<p>4.非核心线程存活时间为60秒.</p>
+<p>当提交任务的速度大于处理器的速度时，每次提交一个任务就必然会创建一个线程。极端情况下会创建过多的献策好难过，耗尽CPU和内存的资源。由于空闲60秒的线程会被终止，长时间保持空闲的CachedThreadPool不会占用任何资源。</p>
+<p><strong>适用场景：</strong>用户并发执行大量短期的小任务。</p>
+</li>
+<li><p>newSingleThreadExecutor（单线程的线程池）</p>
+<p><strong>Feature：</strong> </p>
+<p>1.核心线程数为1.</p>
+<p>2.最大线程数也为1.</p>
+<p>3.阻塞队列是LinkedBlockingQueue.</p>
+<p>4.keepAliveTime为0.</p>
+<p><strong>适用场景：</strong> 适用于串行执行任务的场景，一个任务一个任务地执行。</p>
+</li>
+<li><p>newScheduledThreadPool（定时及周期执行的线程池）</p>
+</li>
+</ul>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">线程池</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">GC</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">garbge</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">JVM</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">thread</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/JVM//" class="article-tag-list-link color4">JVM</a>
+        			<a href="/categories/中间件面经//" class="article-tag-list-link color1">中间件面经</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/08/12/Java线程池/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/07/16/KMP的next数组生成/" class="archive-article-date">
-  	<time datetime="2019-07-16T13:13:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-16</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/08/10/IO多路复用/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">IO多路复用</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/07/16/KMP的next数组生成/">KMP的next数组生成</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">string</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">match</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">substring</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">array</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/string//" class="article-tag-list-link color2">string</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -318,8 +470,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

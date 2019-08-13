@@ -17,7 +17,8 @@
 <meta property="og:description" content="Redis 和I/O多路复用">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/blocking_io.png">
-<meta property="og:updated_time" content="2019-08-10T06:18:35.391Z">
+<meta property="og:image" content="http://yoursite.com/2019/08/10/IO多路复用/mutiplexing_io.png">
+<meta property="og:updated_time" content="2019-08-10T07:05:55.122Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IO多路复用">
 <meta name="twitter:description" content="Redis 和I/O多路复用">
@@ -186,6 +187,9 @@
 <h3 id="几种I-O模型"><a href="#几种I-O模型" class="headerlink" title="几种I/O模型"></a>几种I/O模型</h3><p><strong>为什么使用I/O多路复用技术：</strong> redis是跑在单线程中的，所有操作<strong>顺序线性执行</strong> 由于读写操作等待用户输入或输出都是阻塞的，所以I/O操作一般不能直接返回，这会导致某一文件的I/O阻塞导致整个进程无法对其他客户提供服务，<strong>I/O多路复用就是解决这个问题的</strong></p>
 <h4 id="Blocking-I-O"><a href="#Blocking-I-O" class="headerlink" title="Blocking I/O"></a>Blocking I/O</h4><p><strong>文件描述符（File Descriptor 简称FD）</strong>。当使用read和write对某一文件描述符进行读写时，如果当前FD不可读或者不可写，那么整个Redis服务就不会对其他的操作做出响应，导致整个服务不可用。</p>
 <p><img src="/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/blocking_io.png" alt="blocking_io.png"></p>
+<p>虽然阻塞模型很好理解但是不适合处理多个客户端任务。一般不用阻塞模型处理多个客户端任务。</p>
+<h4 id="I-O多路复用"><a href="#I-O多路复用" class="headerlink" title="I/O多路复用"></a>I/O多路复用</h4><p><img src="//yoursite.com/2019/08/10/IO多路复用/mutiplexing_io.png" alt="mutiplexing_io.png"></p>
+<p>在I/O多路复用的模型中，最重要的函数调用是select，该方法能够同时监控多个文件描述符的可读可写情况，当其中的某些文件描述的可读或可写时，select方法就会返回可读以及可写的文件描述符个数。</p>
 <h3 id="Reactor设计模式"><a href="#Reactor设计模式" class="headerlink" title="Reactor设计模式"></a>Reactor设计模式</h3>
       
 
@@ -308,6 +312,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2019/08/12/Java线程池/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Java线程池
+        
+      </div>
+    </a>
   
   
     <a href="/2019/08/10/Synchronized-和-Lock-的区别/" id="article-nav-older" class="article-nav-link-wrap">
@@ -437,6 +450,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">张三</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">线程池</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">IO</a>
               </li>
              
@@ -465,7 +490,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">张三</a>
+                <a href="javascript:void(0)" class="js-tag color4">database</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">store</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -478,14 +507,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">jvm</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">database</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">store</a>
               </li>
              
               <li class="article-tag-list-item">
