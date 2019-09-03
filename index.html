@@ -242,46 +242,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="TCP-拥塞控制"><a href="#TCP-拥塞控制" class="headerlink" title="TCP 拥塞控制"></a>TCP 拥塞控制</h2><p><a href="https://github.com/huihut/interview#️-计算机网络" target="_blank" rel="noopener">源自</a></p>
-<p>目的：** 拥塞控制就是防止过多的数据注入到网络中，这样就可以使网络中的路由器或者链路不致过载。</p>
-<p><strong>方法：</strong> </p>
-<ul>
-<li>慢开始（slow-start）</li>
-<li>拥塞避免(congestion avoidance)</li>
-<li>快重传(fast retransmit)</li>
-<li>快恢复(fast recovery)</li>
-</ul>
-<p><strong>TCP拥塞控制图</strong></p>
-<p><img src="/TCP-UDP/TCPObstacleControl.jpg" alt="TCPObstacleControl.jpg"></p>
-<p><strong>快重传</strong></p>
-<p><img src="/TCP-UDP/FastResend.jpg" alt="FastResend.jpg"></p>
-<p> <font color="#0000FF"><strong>注：</strong></font> 收到<strong>连续3条</strong>M2的确认信息，就立刻传输M3的报文。连续三次说明确认的这个报文的下一帧没收到。</p>
-<p><strong>快速恢复</strong></p>
-<p><strong>定义</strong> 基于快速重传的后添加的版本， 当收到3个重复ACK时，TCP最后进入的不是拥塞避免阶段，而是快速恢复阶段。基于<strong>数据包守恒</strong>原则，即同一时刻在网络中的数据包数量是恒定的。只有当<strong>老</strong>数据包离开网络后，才能想网络发送一个<strong>新</strong> 的数据包 ，如果发送方收到一个重复的ACK，那么一句TCP的ACK机制就表明有一个数据包离开了网络，于是cwn加1. 严格执行该原则那么网络中就会很少发生拥塞，拥塞控制的目的就是修正违反该原则的地方。</p>
-<p><strong>步骤：</strong> </p>
-<ul>
-<li>当收到3个重复的ACK时，把初始值ssthresh设置为cwnd的一半，把cwnd设置为ssthresh的值加3，然后重新丢失的报文段，加3的原因是因为收到3个重复的ACK表示有3个<strong>老</strong> 的数据包离开网络。</li>
-<li>再收到重复的ACK时，拥塞窗口增加1.</li>
-<li>当收到新的数据包的ACK时，把cwnd设置为第一步中的ssthresh的值。原因是因为该ACK确认了新的数据，说明从重复ACK时的数据都已经接收到了，该恢复过程已经结束，也即再次进入拥塞避免状态。</li>
-</ul>
-<p><strong>Reno和NewReno的区别</strong></p>
-<p>Reno，在收到一个新的数据ACK时就退出了快速恢复状态了，NewReno需要收到该窗口内所有数据包的确认后才会退出快速恢复状态，从而进一步提高吞吐量。</p>
-<p><strong>TCP拥塞控制的流程图</strong></p>
-<p><img src="/TCP-UDP/control.jpg" alt="control.jpg"></p>
-<p><font color="#FF0000"><strong>TCP 拥塞窗口变化原则</strong></font> 加法增大，乘法减少。</p>
-<p><img src="/TCP-UDP/forthshakehand.jpg" alt="四次挥手"></p>
-<p><font color="#FF0000"><strong>问题一</strong></font>TCP 为什么要进行四次挥手？ / 为什么 TCP 建立连接需要三次，而释放连接则需要四次？</p>
-<p><font color="#FF0000"><strong>答案一</strong></font>因为 TCP 是全双工模式，客户端请求关闭连接后，客户端向服务端的连接关闭（一二次挥手），服务端继续传输之前没传完的数据给客户端（数据传输），服务端向客户端的连接关闭（三四次挥手）。所以 TCP 释放连接时服务器的 ACK 和 FIN 是分开发送的（中间隔着数据传输），而 TCP 建立连接时服务器的 ACK 和 SYN 是一起发送的（第二次握手），所以 TCP 建立连接需要三次，而释放连接则需要四次。</p>
-<p><font color="#FF0000"><strong>问题二</strong></font>为什么 TCP 连接时可以 ACK 和 SYN 一起发送，而释放时则 ACK 和 FIN 分开发送呢？（ACK 和 FIN 分开是指第二次和第三次挥手）</p>
-<p><font color="#FF0000"><strong>答案二</strong></font>因为客户端请求释放时，服务器可能还有数据需要传输给客户端，因此服务端要先响应客户端 FIN 请求（服务端发送 ACK），然后数据传输，传输完成后，服务端再提出 FIN 请求（服务端发送 FIN）；而连接时则没有中间的数据传输，因此连接时可以 ACK 和 SYN 一起发送。</p>
-<p><font color="#FF0000"><strong>问题三</strong></font>为什么客户端释放最后需要 TIME-WAIT 等待 2MSL 呢？</p>
-<p><font color="#FF0000"><strong>答案三</strong></font></p>
-<ol>
-<li>为了保证客户端发送的最后一个 ACK 报文能够到达服务端。若未成功到达，则服务端超时重传 FIN+ACK 报文段，客户端再重传 ACK，并重新计时。</li>
-<li>防止已失效的连接请求报文段出现在本连接中。TIME-WAIT 持续 2MSL 可使本连接持续的时间内所产生的所有报文段都从网络中消失，这样可使下次连接中不会出现旧的连接报文段。</li>
-</ol>
-<p><img src="/TCP-UDP/stateimage.jpg" alt="状态图"></p>
-
+        <h2 id="TCP-拥塞控制"><a href="#TCP-拥塞控制" class="headerlink" title="TCP 拥塞控制"></a>TCP 拥塞控制</h2>
+        
+          <a class="article-more-a" href="/2019/08/28/TCP-UDP/#more">more >></a>
+        
       
 
       
@@ -369,7 +333,146 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <h2 id="不同层对应的协议及解释"><a href="#不同层对应的协议及解释" class="headerlink" title="不同层对应的协议及解释"></a>不同层对应的协议及解释</h2><h3 id="网络体系机构图"><a href="#网络体系机构图" class="headerlink" title="网络体系机构图"></a>网络体系机构图</h3><p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/structureimage.jpg" alt="网络体系结构图"><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/function.jpg" alt="作用图"></p>
+<h3 id="物理层"><a href="#物理层" class="headerlink" title="物理层"></a>物理层</h3><ul>
+<li>传输单位：比特</li>
+<li>传输系统：源系统（源点，发送器）–&gt;传输系统–&gt;目标系统(接收器,终点)</li>
+</ul>
+<p><strong>通道：</strong></p>
+<ul>
+<li>单向通道（单工通道）：只有一个方向通信，没有反方向交互，如广播。</li>
+<li>双向交替通信（半双工通信）：通信双方都可发消息，但不能同时发消息。</li>
+<li>双向同时通信（半双工通信）：通信双方可以同时发送和接收消息。</li>
+</ul>
+<p><strong>通道复用技术：</strong> </p>
+<ul>
+<li>频分复用（FDM，Frequency Division Multiplexing）：不同用户在不同频带，所有用户在同样时间内占用不同的带宽资源。</li>
+<li>时分复用（TDM，Time Division Multiplexing）: 不同用户在同一时间段的不同时间片，所有用户在不同时间占用同样的频带宽度。</li>
+<li>波分复用(WDM， Wavelength Division Multiplexing)：光的频分复用</li>
+<li>码分复用（CDM, code Division Multiplexing）: 不同用户使用不同的码，可以在同样时间使用同样频带通信</li>
+</ul>
+<p><strong>数据链路层</strong></p>
+<p>主要信道：</p>
+<ul>
+<li>点对点信道</li>
+<li>广播信道</li>
+</ul>
+<p><strong>点对点信道</strong></p>
+<ul>
+<li>数据单元： 帧</li>
+</ul>
+<p><strong>三个基本问题</strong></p>
+<ul>
+<li>封装成帧：把网络层的IP数据报封装成帧，SOH-数据部分-EOT</li>
+<li>透明传输：不管数据部分什么字符，都能传输出去；可以通过自己填充方法解决（冲突字符前加转义字符）</li>
+<li>差错检测：降低误码率（BER, Bit Error  Rate）,广泛使用循环冗余检测（CRC,Cyclic Redundancy Check）。</li>
+</ul>
+<p><strong>点对点协议：</strong>（point-to-point protocol） 用户计算机和ISP通信时所使用的协议。</p>
+<p><strong>广播信道</strong></p>
+<ul>
+<li>硬件地址（物理地址，MAC地址）</li>
+<li>单播（unicast）帧（一对一）：收到帧的MAC地址与本站的硬件地址相同</li>
+<li>广播（broadcast）帧（一对全体）：发送给本剧与网上所有站点的帧</li>
+<li>多播（multicast）帧（一对多）：发送给本局域网上一部分站点的帧</li>
+</ul>
+<h3 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h3><ul>
+<li>IP（Internet Protocol，网际协议）是为计算机相互连接进行通信而设计的协议</li>
+<li>ARP（Address Resolution Protocol,地址解析协议）</li>
+<li>ICMP（Internet Control Message Protocol，网际控制报文协议）</li>
+<li>IGMP（internet Group Management Protocol,网际组管理协议）</li>
+</ul>
+<p><strong>IP网际协议</strong></p>
+<p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/internetprotocol.jpg" alt="IP地址分类"></p>
+<p><strong>IP数据报格式</strong></p>
+<p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/ipstructure.jpg" alt="IP结构"></p>
+<p><strong>ICMP网际控制报文协议</strong>  </p>
+<p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/icmpstruct.jpg" alt="ICMP结构"></p>
+<p><strong>应用：</strong> </p>
+<ul>
+<li>PING（Packet Internet Groper,分组网间探测）测试两个主机之间的连通性<ul>
+<li>TTL（Time To Live，生存时间）该字段制定IP包被路由器丢弃之前被允许通过的最大网段数量</li>
+</ul>
+</li>
+</ul>
+<p><strong>内部网关协议</strong></p>
+<ul>
+<li>RIP（Routing Information protocol，路由信息协议）</li>
+<li>OSPF（Open Sortest Path First,开放最短路径优先）</li>
+</ul>
+<p><strong>外部网关协议</strong></p>
+<ul>
+<li>BGP（Border Gateway Protocol，边界网关协议）</li>
+</ul>
+<p><strong>IP多播</strong></p>
+<ul>
+<li>IGMP（Internet Group Managerment Protocol,网际组管理协议）</li>
+<li>多播路由选择协议</li>
+</ul>
+<p><strong>VPN和NAT</strong></p>
+<ul>
+<li>VPN（virtual Private Network，虚拟专用网）</li>
+<li>NAT（Network Address Translation,网络地址转换）</li>
+</ul>
+<p><strong>路由表包含什么</strong></p>
+<ul>
+<li>网络ID（Network ID ,Network number）: 就是目标地址的网络ID</li>
+<li>子网掩码（subnet mask）：用来判断IP所属网络</li>
+<li>下一跳地址/接口（Next hop/Interface）:就是数据在发送到目标地址的路途中下一站的地址。其中Interface指向next hop（即为下一个route）。一个自治系统（AS，Autonomous system）中的route应该包含区域内所有的子网络，而默认网关（Network id:0.0.0.0,Netmask:0.0.0.0）指向自治系统的出口。</li>
+</ul>
+<p>根据应用和执行的不同，路由表可能包含有如下附加信息：</p>
+<ul>
+<li>花费（cost）：就是数据发送过程中通过路径所需要的花费</li>
+<li>路由的服务质量</li>
+<li>路由中需要过滤的出/入连接列表</li>
+</ul>
+<h3 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h3><p><strong>协议：</strong></p>
+<ul>
+<li>TCP（Transmission Control Protocol,传输控制协议）</li>
+<li>UDP（User Datagram Protocol，用户数据报协议）</li>
+</ul>
+<p><strong>端口：</strong></p>
+<p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/ports.jpg" alt="端口"></p>
+<p><strong>TCP Festures</strong></p>
+<ul>
+<li>TCP(Transmission Control Protocol,传输控制协议)是一种面向连接的，可靠的，基于字节流的传输层通信协议，其传输的单位是报文段。</li>
+<li>面向连接</li>
+<li>只能点对点（一对一）通信</li>
+<li>可靠交互</li>
+<li>全双工通信</li>
+<li>面向字节流</li>
+</ul>
+<p><strong>TCP如何保证可靠传输：</strong></p>
+<ul>
+<li>确认和超时重传</li>
+<li>数据合理分片和排序</li>
+<li>流量控制</li>
+<li>拥塞控制</li>
+<li>数据校验</li>
+</ul>
+<p><strong>TCP报文结构</strong></p>
+<p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/tcpstruct.jpg" alt="TCP结构"></p>
+<p><img src="/%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8A%9F/tcphead.jpg" alt="TCP 头"></p>
+<p><strong>TCP与UDP的区别</strong></p>
+<ul>
+<li>TCP是面向连接的，UDP是无连接的</li>
+<li>TCP提供可靠的服务，也就是说，通过TCP连接传输的数据，无差错，不丢失，不重复，且按序到达；UDP尽最大努力交付，即不保证可靠交付</li>
+<li>TCP的逻辑通信信道是全双工的可靠信道； UDP 则是不可靠信道</li>
+<li>每一条TCP连接只能是点到点的;UDP 支持一对一，一对多，多对一和多对多的交互通信</li>
+<li>TCP面向自己留（可能出现黏包问题），实际上是TCP把数据看成一连串无结构的字节流；UDP是面向报文的（不会出现黏包问题）</li>
+<li>UDP没有拥塞控制，因此网络出现拥塞不会使源主机的发送速率降低（对实时应用很有用，如IP电话，实时视频会议等）</li>
+<li>TCP首部开销20字节；UDP的首部开销小，只有8个字节</li>
+</ul>
+<p><strong>TCP粘包问题</strong></p>
+<p><strong>原因</strong></p>
+<p>TCP是一个基于字节流的传输服务（UDP是基于报文的），“流”意味着TCP所传输的数据是没有边界的。所以可能会出现两个数据包黏在一起的情况。</p>
+<p><strong>解决</strong></p>
+<ul>
+<li>发送定长包。如果每个消息的大小都是一样的，那么在接收对等方只要累计接收树，知道数据等于一个定长的数值就将它作为一个消息。</li>
+<li>爆头加上包体长度。包头是定长的4个字节，说明了包体的长度。接收对等方先接收包头长度，依据包头长度来接收包体。</li>
+<li>在数据包之间设置边界，如果添加特殊制度\r\n标记。FTP协议正是这么做的。但问题在于如果数据正文中也包含\r\n，则会误判为消息的边界。</li>
+<li>使用更加复杂的应用层协议。</li>
+</ul>
+
       
 
       
@@ -1204,14 +1307,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">线程池</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">thread</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">string</a>
               </li>
              
@@ -1228,11 +1323,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">TCP</a>
+                <a href="javascript:void(0)" class="js-tag color4">线程池</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">UDP</a>
+                <a href="javascript:void(0)" class="js-tag color2">thread</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">OSI</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">protocol</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1248,11 +1351,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">OSI</a>
+                <a href="javascript:void(0)" class="js-tag color4">TCP</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">protocol</a>
+                <a href="javascript:void(0)" class="js-tag color4">UDP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1261,10 +1364,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">store</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">网络传输</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1281,6 +1380,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">thread ，线程</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">网络传输</a>
               </li>
              
               <li class="article-tag-list-item">
